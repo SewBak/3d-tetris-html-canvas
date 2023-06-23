@@ -18,7 +18,7 @@
         <source src="https://ia800504.us.archive.org/33/items/TetrisThemeMusic/Tetris.mp3">
     </audio>
     <script>
-        alert("Arrow keys to play. Up to rotate.");
+        alert("Arrow keys to play. Up to rotate. Press t to toggle between different perspective distortions.");
         const dot = (a, b) => a.map((x, i) => a[i] * b[i]).reduce((m, n) => m + n);
         const dist = (a, b) => Math.sqrt(Math.pow(b[0] - a[0], 2) + Math.pow(b[1] - a[1], 2) + Math.pow(b[2] - a[2], 2));
         const vadd = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
@@ -33,9 +33,12 @@
         const project = (p, dist) => [p[0] + (nn[0] * dist), p[1] + (nn[1] * dist), p[2] + (nn[2] * dist)];
         const am = 80;
         const bm = 40;
-        const aadd = 370;
-        const badd = 400;
+        var aadd = 370;
+        //var badd = 400;
+        var zs = -1.5;
+        var badd = 400;
         var fovpower = 0.5;
+        var ti = 0;
         var currdist;
         const eq = { a: 1, b: 2, c: 0.5, d: 5 };
         const n = [-1, -2, -0.5];
@@ -66,35 +69,35 @@
             c.lineTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
             calcMuls([x, 0, y]);
             c.lineTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
-            calcMuls([x, -1, y]);
+            calcMuls([x, zs, y]);
             c.moveTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
-            calcMuls([x + 1, -1, y]);
+            calcMuls([x + 1, zs, y]);
             c.lineTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
-            calcMuls([x + 1, -1, y + 1]);
+            calcMuls([x + 1, zs, y + 1]);
             c.lineTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
-            calcMuls([x, -1, y + 1]);
+            calcMuls([x, zs, y + 1]);
             c.lineTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
-            calcMuls([x, -1, y]);
+            calcMuls([x, zs, y]);
             c.lineTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
             calcMuls([x, 0, y]);
             c.moveTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
-            calcMuls([x, -1, y]);
+            calcMuls([x, zs, y]);
             c.lineTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
             calcMuls([x + 1, 0, y]);
             c.moveTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
-            calcMuls([x + 1, -1, y]);
+            calcMuls([x + 1, zs, y]);
             c.lineTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
             calcMuls([x + 1, 0, y + 1]);
             c.moveTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
-            calcMuls([x + 1, -1, y + 1]);
+            calcMuls([x + 1, zs, y + 1]);
             c.lineTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
             calcMuls([x, 0, y + 1]);
             c.moveTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
-            calcMuls([x, -1, y + 1]);
+            calcMuls([x, zs, y + 1]);
             c.lineTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
             calcMuls([x, 0, y]);
             c.moveTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
-            calcMuls([x, -1, y]);
+            calcMuls([x, zs, y]);
             c.lineTo(amul * am / Math.pow(currdist, fovpower) + aadd, bmul * bm / Math.pow(currdist, fovpower) + badd);
             c.stroke();
         }
@@ -250,6 +253,7 @@
         }
 
         function keyMan(evt) {
+            if (evt.keyCode == 84) { toggle(); }
             if (!started || stopped || currKeyExists) { return; }
             currKeyCode = evt.keyCode;
             currKeyExists = true;
@@ -399,6 +403,29 @@
                 cy = curry + curr[i][1];
                 //c.fillRect(currx + curr[i][0], curry + curr[i][1], 1, 1);
                 drawcube(cx, cy);
+            }
+        }
+
+        function toggle() {
+            switch (ti) {
+                case 0:
+                    badd = 530;
+                    refp[1] = -6.714285714285714;
+                    ti++
+                    break;
+                case 1:
+                    refp[0] = 3.142857142857143;
+                    badd = 470;
+                    aadd = 430;
+                    ti++
+                    break;
+                case 2:
+                    badd = 400;
+                    aadd = 370;
+                    refp[1] = -5.714285714285714;                               //[2.142857142857143, -5.714285714285714, 8.571428571428571]
+                    refp[0] = 2.142857142857143;
+                    ti = 0;
+                    break;
             }
         }
     </script>
