@@ -18,7 +18,7 @@
         <source src="https://ia800504.us.archive.org/33/items/TetrisThemeMusic/Tetris.mp3">
     </audio>
     <script>
-        alert("Arrow keys to play. Up to rotate. Press t to toggle between different perspective distortions.");
+        alert("Use Z and X to rotate game. Arrow keys to play. UP key for rotating tetrominoes. Press t to toggle between different perspective distortions.");
         const dot = (a, b) => a.map((x, i) => a[i] * b[i]).reduce((m, n) => m + n);
         const dist = (a, b) => Math.sqrt(Math.pow(b[0] - a[0], 2) + Math.pow(b[1] - a[1], 2) + Math.pow(b[2] - a[2], 2));
         const vadd = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
@@ -29,6 +29,25 @@
             od = dist([0, 0, 0], v);
             return [v[0] / od, v[1] / od, v[2] / od];
         }
+        const normalize2D = v => {
+            v = vsub(v, midpoint);
+            od = dist([0, 0, 0], [v[0], v[1], 0]);
+            return [v[0] / od, v[1] / od, v[2]];
+        }
+        function angIfier(v) {
+            angDist = dist([v[0], v[1], 0], midpoint);
+            v = normalize2D(v);
+            ang = Math.asin(v[1]);
+            if (v[0] < 0) {
+                ang = Math.PI - ang;
+            }
+            if (ang < 0) {
+                ang += Math.PI * 2;
+            }
+            ang += currang;
+            if (ang >= Math.PI * 2) { ang -= Math.PI * 2 }
+            return [Math.cos(ang) * angDist + midpoint[0], Math.sin(ang) * angDist + midpoint[1], v[2]];
+        }
         const planedist = p => (Math.abs(eq.a * p[0] + eq.b * p[1] + eq.c * p[2] + eq.d) / Math.sqrt(Math.pow(eq.a, 2) + Math.pow(eq.b, 2) + Math.pow(eq.c, 2)));
         const project = (p, dist) => [p[0] + (nn[0] * dist), p[1] + (nn[1] * dist), p[2] + (nn[2] * dist)];
         const am = 80;
@@ -38,6 +57,8 @@
         var zs = -1.5;
         var badd = 380;
         var fovpower = 0.5;
+        const midpoint = [5, zs / 2, 0];
+        var currang = 0;
         var ti = 0;
         var currdist;
         const eq = { a: 1, b: 2, c: 0.5, d: 5 };
@@ -48,6 +69,7 @@
         //const refp = [-1, -2, 0];
         const refp = [2.142857142857143, -5.714285714285714, 8.571428571428571];
         function calcMuls(p) {
+            p = angIfier(p);
             pd = planedist(p);
             currdist = pd;
             pp = project(p, pd);
@@ -194,6 +216,7 @@
             }
             curry++;
             redraw();
+            if (currang >= Math.PI * 2) { currang = 0; }
             setTimeout(mainLoop, ms);
         }
         function move() {
@@ -253,7 +276,9 @@
         }
 
         function keyMan(evt) {
-            if (evt.keyCode == 84) { toggle(); }
+            if (evt.keyCode == 84) { toggle(); return; }
+            if (evt.keyCode == 90) { currang -= 0.1; redraw(); return; }
+            if (evt.keyCode == 88) { currang += 0.1; redraw(); return; }
             if (!started || stopped || currKeyExists) { return; }
             currKeyCode = evt.keyCode;
             currKeyExists = true;
